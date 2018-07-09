@@ -1,15 +1,15 @@
 {
-  "name": "ui-driver-skel",
-  "version": "0.0.2",
-  "description": "Skeleton Rancher UI driver for custom docker-machine drivers",
+  "name": "ui-driver-linode",
+  "version": "0.1.0",
+  "description": "Rancher UI driver for the Linode docker-machine driver",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rancher/ui-driver-skel.git"
+    "url": "git+https://github.com/displague/ui-driver-linode.git"
   },
-  "author": "Rancher Labs, Inc.",
+  "author": "Marques Johansson",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/rancher/rancher/issues"
+    "url": "https://github.com/displague/ui-driver-linode/issues"
   },
   "scripts": {
     "start": "./node_modules/.bin/gulp server",
@@ -17,7 +17,7 @@
     "build": "./node_modules/.bin/gulp build",
     "upload": "./scripts/upload"
   },
-  "homepage": "https://github.com/rancher/ui-driver-skel#readme",
+  "homepage": "https://github.com/displague/ui-driver-linode#readme",
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-plugin-add-module-exports": "^0.3.2",
@@ -34,6 +34,7 @@
     "gulp-sourcemaps": "2.6.4",
     "jshint": "2.9.5",
     "replace-string": "^1.1.0",
-    "yargs": "11.0.0"
+    "yargs": "11.0.0",
+    "@babel/core": "^7.1.2"
   }
 }

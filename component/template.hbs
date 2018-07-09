@@ -1,4 +1,31 @@
 <section class="horizontal-form">
+  {{#if needAPIToken}}
+  <form>
+    <div class="over-hr r-mb20">
+      <span>Account Access</span>
+    </div>
+    <div class="row form-group">
+      <div class="col-md-2">
+        <label class="form-control-static">API Token*</label>
+      </div>
+      <div class="col-md-10">
+        {{input type="password" value=model.linodeConfig.apiToken classNames="form-control" placeholder="Your Linode APIv4 Token"}}
+        <p class="help-block">Create a Personal Access Token at
+          <a target="_blank" href="https://cloud.linode.com/profile/tokens">Linode Cloud Manager</a>, click your username, go to My Profile → Add a Personal Access Token</p>
+      </div>
+    </div>
+    {{top-errors errors=errors}}
+    <div class="footer-actions">
+      {{#if gettingData}}
+      <button class="btn bg-primary btn-disabled">
+        <i class="icon icon-spinner icon-spin"></i> {{t 'generic.loading'}}</button>
+      {{else}}
+      <button {{action "getData" }} class="btn bg-primary" disabled={{not model.linodeConfig.apiToken}}>Configure Server</button>
+      {{/if}}
+      <button {{action "cancel"}} class="btn bg-transparent">{{t 'generic.cancel'}}</button>
+    </div>
+  </form>
+  {{else}}
   {{#accordion-list showExpandAll=false as | al expandFn |}}
     {{!-- This line shows the driver title which you don't have to change it --}}
     <div class="over-hr mb-20"><span>{{driverOptionsTitle}}</span></div>
@@ -51,9 +78,75 @@
     }}
   {{/accordion-list}}
 
+
+<hr>
+TODO - new format above, old form below
+<hr>
+  <div class="container-fluid">
+    {{!-- This partial contains the quantity, name, and description fields --}}
+    <div class="over-hr">
+      <span>{{templateOptionsTitle}}</span>
+    </div>
+    <div class="over-hr r-mt20 r-mb20">
+      <span>Region</span>
+    </div>
+    <div class="row form-group">
+      <div class="col-md-2">
+        <label class="form-control-static">Region</label>
+      </div>
+      <div class="col-md-10">
+        <select class="form-control" onchange={{action (mut model.linodeConfig.region) value="target.value" }}>
+          {{#each regionChoices as |choice|}}
+            <option value={{choice.id}} selected={{eq model.linodeConfig.region choice.id}}>{{choice.id}} ({{choice.country}})</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+    <div class="over-hr r-mt20 r-mb20">
+      <span>Settings</span>
+    </div>
+    <div class="row form-group">
+      <div class="col-md-2">
+        <label class="form-control-static">Image</label>
+      </div>
+      <div class="col-md-4">
+        <select class="form-control" onchange={{action (mut model.linodeConfig.image) value="target.value" }}>
+          {{#each imageChoices as |choice|}}
+            <option value={{choice.id}} selected={{eq model.linodeConfig.image choice.id}}>{{choice.label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-control-static">Instance Type</label>
+      </div>
+      <div class="col-md-4">
+        <select class="form-control" onchange={{action (mut model.linodeConfig.instanceType) value="target.value" }}>
+          {{#each sizeChoices as |choice|}}
+            <option value={{choice.id}} selected={{eq model.linodeConfig.instanceType choice.id}}>{{choice.label}} - {{choice.vcpus}} vCPUs, {{choice.memory}}GB Memory, {{choice.disk}}GB Disk space</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+    <div class="over-hr r-mt20 r-mb20">
+      <span>User data</span>
+    </div>
+    <div class="row form-group">
+      <div class="col-md-2">
+        <label class="form-control-static">Cloud-init Configuration (optional)</label>
+      </div>
+      <div class="col-md-10">
+        <textarea onchange={{action (mut model.linodeConfig.userData) value="target.value" }} rows="3" style="width: 100%; resize: vertical"></textarea>
+      </div>
+    </div>
+     {{!-- This following contains the Name, Labels and Engine Options fields --}}
+     {{form-name-description model=model nameRequired=true}}
+     {{form-user-labels initialLabels=labelResource.labels setLabels=(action 'setLabels') expandAll=expandAll expand=(action expandFn) }}
+     {{form-engine-opts machine=model showEngineUrl=showEngineUrl }}
   {{!-- This component shows errors produced by validate() in the component --}}
   {{top-errors errors=errors}}
 
   {{!-- This component shows the Create and Cancel buttons --}}
   {{save-cancel save="save" cancel="cancel"}}
+  </div>
+  {{/if}}
 </section>
