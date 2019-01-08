@@ -14,6 +14,7 @@ const get = Ember.get;
 const set = Ember.set;
 const alias = Ember.computed.alias;
 const service = Ember.inject.service;
+const observer = Ember.observer;
 
 const defaultRadix = 10;
 const defaultBase = 1024;
@@ -43,13 +44,22 @@ init() {
 
 // Write your component here, starting with setting 'model' to a machine with your config populated
 bootstrap: function () {
+  var genRootPass = function() {
+    return Array(36)
+      .fill('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@-#$')
+      .map(x => x[Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1) * (x.length + 1))])
+      .join('');
+  }
+
   // bootstrap is called by rancher ui on 'init', you're better off doing your setup here rather then the init function to ensure everything is setup correctly
   let config = get(this, 'globalStore').createRecord({
     type: '%%DRIVERNAME%%Config',
+    token: null,
     instanceType: 'g6-standard-4', // 4 GB Ram
     region: 'us-east', // Newark
-    image: 'ubuntu18.04',
-    userData: ''
+    image: 'linode/ubuntu18.04',
+    rootPass: genRootPass(),
+    sshUser: 'root',
   });
 
   set(this, 'model.%%DRIVERNAME%%Config', config);
@@ -67,8 +77,26 @@ validate() {
   // Add more specific errors
 
   // Check something and add an error entry if it fails:
+  /*
   if (parseInt(get(this, 'config.memorySize'), defaultRadix) < defaultBase) {
     errors.push('Memory Size must be at least 1024 MB');
+  }
+
+  if (get(this, 'model.%%DRIVERNAME%%Config.image')) {
+    this.set('model.%%DRIVERNAME%%Config.image', "")
+  }
+  */
+
+  if (!this.get('model.%%DRIVERNAME%%Config.instanceType') ) {
+    errors.push('Specifying a %%DRIVERNAME%% Instance Type is required');
+  }
+
+  if (!this.get('model.%%DRIVERNAME%%Config.image') ) {
+    errors.push('Specifying a %%DRIVERNAME%% Image is required');
+  }
+
+  if (!this.get('model.%%DRIVERNAME%%Config.region') ) {
+    errors.push('Specifying a %%DRIVERNAME%% Region is required');
   }
 
   // Set the array of errors for display,
@@ -105,7 +133,15 @@ actions: {
     });
   }
 },
+imageChanged: observer('config.image', function() {
+  const image = get(this, 'config.image');
 
+  if ( /containerlinux/.test(image) ) {
+    set(this, 'config.sshUser', 'core');
+  } else {
+    set(this, 'config.sshUser', 'root');
+  }
+}),
 apiRequest: function (path) {
   return fetch('https://api.linode.com' + path, {
     headers: {

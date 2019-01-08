@@ -120,10 +120,19 @@ gulp.task('styles', ['clean'], function() {
 });
 
 gulp.task('server', ['build', 'watch'], function() {
+  var cors = function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    next();
+  };
+
   return gulpConnect.server({
     root: [DIST],
     port: process.env.PORT || 3000,
-    https: false,
+    host: process.env.HOST || 'localhost',
+    middleware: function () {
+      return [cors];
+    },
+    https: process.env.HTTPS || false,
   });
 });
 
