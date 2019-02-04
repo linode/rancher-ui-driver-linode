@@ -26,10 +26,8 @@ if (!DRIVER_NAME) {
   process.exit(1);
 }
 
-gulp.task('default', ['build']);
-
 gulp.task('watch', function() {
-  gulp.watch(['./component/*.js', './component/*.hbs', './component/*.css'], ['build']);
+  gulp.watch(['./component/*.js', './component/*.hbs', './component/*.css'], gulp.parallel(['build']));
 });
 
 gulp.task('clean', function() {
@@ -37,14 +35,21 @@ gulp.task('clean', function() {
   .pipe(clean());
 });
 
-gulp.task('assets', ['styles'], function() {
+gulp.task('styles', gulp.series(['clean'], function() {
+  return gulp.src([
+    BASE + '**.css'
+  ])
+    .pipe(replace(NAME_TOKEN, DRIVER_NAME))
+    .pipe(gulpConcat(`component.css`,{newLine: ';\n'}))
+    .pipe(gulp.dest(DIST));
+}));
+
+gulp.task('assets', gulp.series(['styles'], function() {
   return gulp.src(ASSETS+'*')
   .pipe(gulp.dest(DIST));
-});
+}));
 
-gulp.task('build', ['compile']);
-
-gulp.task('babel', ['assets'], function() {
+gulp.task('babel', gulp.series(['assets'], function() {
 
   const opts = {
     "presets": [
@@ -75,9 +80,9 @@ gulp.task('babel', ['assets'], function() {
     .pipe(babel(opts))
     .pipe(gulpConcat(`component.js`,{newLine: ';\n'}))
     .pipe(gulp.dest(TMP));
-});
+}));
 
-gulp.task('rexport', ['babel'], function() {
+gulp.task('rexport', gulp.series(['babel'], function() {
   const rexpOpts = {
     "presets": [
       ["env", {
@@ -90,7 +95,7 @@ gulp.task('rexport', ['babel'], function() {
                  [ "transform-es2015-modules-amd", {"noInterop": true,} ]
                ],
     "moduleId": `ui/components/driver-${DRIVER_NAME}/component`
-  }
+  };
 
   return gulp.src([
     `${BASE}rexport.js`
@@ -99,27 +104,19 @@ gulp.task('rexport', ['babel'], function() {
     .pipe(babel(rexpOpts))
     .pipe(gulpConcat(`rexport.js`,{newLine: ';\n'}))
     .pipe(gulp.dest(TMP));
-});
+}));
 
-gulp.task('compile', ['rexport'], function() {
+gulp.task('compile', gulp.series(['rexport'], function() {
   return gulp.src([
     `${TMP}**.js`
   ])
     .pipe(gulpConcat(`component.js`,{newLine: ';\n'}))
     .pipe(gulp.dest(DIST));
-});
+}));
 
+gulp.task('build', gulp.series(['compile']));
 
-gulp.task('styles', ['clean'], function() {
-  return gulp.src([
-    BASE + '**.css'
-  ])
-    .pipe(replace(NAME_TOKEN, DRIVER_NAME))
-    .pipe(gulpConcat(`component.css`,{newLine: ';\n'}))
-    .pipe(gulp.dest(DIST));
-});
-
-gulp.task('server', ['build', 'watch'], function() {
+gulp.task('server', gulp.parallel(['build', 'watch'], function() {
   var cors = function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     next();
@@ -134,8 +131,10 @@ gulp.task('server', ['build', 'watch'], function() {
     },
     https: process.env.HTTPS || false,
   });
-});
+}));
 
 gulp.task('watch', function() {
-  gulp.watch(['./component/*.js', './component/*.hbs', './component/*.css'], ['build']);
+  gulp.watch(['./component/*.js', './component/*.hbs', './component/*.css'], gulp.parallel(['build']));
 });
+
+gulp.task('default', gulp.series(['build']));
