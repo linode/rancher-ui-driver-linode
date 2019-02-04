@@ -58,8 +58,9 @@ bootstrap: function () {
     instanceType: 'g6-standard-4', // 4 GB Ram
     region: 'us-east', // Newark
     image: 'linode/ubuntu18.04',
-    rootPass: genRootPass(),
-    sshUser: 'root',
+    // rootPass: genRootPass(), // default is random password
+    // sshUser: 'root', // automatically chosen by driver
+    uaPrefix: 'RKE'
   });
 
   set(this, 'model.%%DRIVERNAME%%Config', config);
@@ -120,8 +121,8 @@ actions: {
         needAPIToken: false,
         gettingData: false,
         regionChoices: responses[0].data,
-        imageChoices: responses[1].data.filter(image => !/fedora/.test(image.label)),
-        sizeChoices: responses[2].data
+        imageChoices: responses[1].data.filter(image => /ubuntu1[68]/.test(image.id)),
+        sizeChoices: responses[2].data.filter(size => !/nanode/.test(size.id))
       });
     }).catch(function (err) {
       err.then(function (msg) {
@@ -133,15 +134,16 @@ actions: {
     });
   }
 },
+/* // the driver handles this itself
 imageChanged: observer('config.image', function() {
   const image = get(this, 'config.image');
-
   if ( /containerlinux/.test(image) ) {
     set(this, 'config.sshUser', 'core');
   } else {
     set(this, 'config.sshUser', 'root');
   }
 }),
+*/
 apiRequest: function (path) {
   return fetch('https://api.linode.com' + path, {
     headers: {
