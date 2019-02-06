@@ -44,23 +44,19 @@ init() {
 
 // Write your component here, starting with setting 'model' to a machine with your config populated
 bootstrap: function () {
-  var genRootPass = function() {
-    return Array(36)
-      .fill('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@-#$')
-      .map(x => x[Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1) * (x.length + 1))])
-      .join('');
-  };
-
   // bootstrap is called by rancher ui on 'init', you're better off doing your setup here rather then the init function to ensure everything is setup correctly
   let config = get(this, 'globalStore').createRecord({
     type: '%%DRIVERNAME%%Config',
     token: null,
     instanceType: 'g6-standard-4', // 4 GB Ram
     region: 'us-east', // Newark
-    image: 'linode/ubuntu18.04',
-    // rootPass: genRootPass(), // default is random password
-    // sshUser: 'root', // automatically chosen by driver
-    uaPrefix: 'RKE'
+    image: 'linode/ubuntu16.04lts',
+    uaPrefix: 'Rancher',
+    tags: '',
+    authorizedUsers: '',
+    createPrivateIp: false,
+    stackscript: '',
+    stackscriptData: '',
   });
 
   set(this, 'model.%%DRIVERNAME%%Config', config);
@@ -74,19 +70,6 @@ validate() {
   if (!get(this, 'model.name')) {
     errors.push('Name is required');
   }
-
-  // Add more specific errors
-
-  // Check something and add an error entry if it fails:
-  /*
-  if (parseInt(get(this, 'config.memorySize'), defaultRadix) < defaultBase) {
-    errors.push('Memory Size must be at least 1024 MB');
-  }
-
-  if (get(this, 'model.%%DRIVERNAME%%Config.image')) {
-    this.set('model.%%DRIVERNAME%%Config.image', "")
-  }
-  */
 
   if (!this.get('model.%%DRIVERNAME%%Config.instanceType') ) {
     errors.push('Specifying a %%DRIVERNAME%% Instance Type is required');
@@ -115,39 +98,46 @@ actions: {
   getData() {
     this.set('gettingData', true);
     let that = this;
-    Promise.all([this.apiRequest('/v4/regions'), this.apiRequest('/v4/images'), this.apiRequest('/v4/linode/types')]).then(function (responses) {
+    Promise.all([this.apiRequest('/v4/profile')]).then(function (responses) {
       that.setProperties({
         errors: [],
         needAPIToken: false,
-        gettingData: false,
-        regionChoices: responses[0].data,
-        imageChoices: responses[1].data.filter(image => /ubuntu1[68]/.test(image.id)),
-        sizeChoices: responses[2].data.filter(size => !/nanode/.test(size.id))
+        restricted: responses[0].restricted,
+      })
+    }).then(function () {
+
+      Promise.all([that.apiRequest('/v4/regions'), that.apiRequest('/v4/images'), that.apiRequest('/v4/linode/types')]).then(function (responses) {
+        that.setProperties({
+          errors: [],
+          gettingData: false,
+          regionChoices: responses[0].data.map(region => { region.label = region.id.slice(0,4).toUpperCase() + region.id.slice(4) + " (" + region.country.toUpperCase() + ")";  return region }).sort((a,b)=>String.prototype.localeCompare(a,b)),
+          imageChoices: responses[1].data.filter(image => /^linode.(ubuntu18.04|ubuntu16.04|debian9)/.test(image.id)),
+          sizeChoices: responses[2].data.filter(size => !/nanode/.test(size.id)).map(image => { image.disk/=1024; image.memory/=1024; return image } ),
+        })
+      }).catch(function (err) {
+          err.then(function (msg) {
+            that.setProperties({
+              errors: ['Error received from Linode: ' + msg.errors[0].reason ],
+              gettingData: false,
+            });
+          });
       });
+
     }).catch(function (err) {
       err.then(function (msg) {
         that.setProperties({
-          errors: ['Error received from Linode: ' + msg.error.message],
-          gettingData: false
+          errors: ['Error received from Linode: ' + msg.errors[0].reason ],
+          gettingData: false,
+          needAPIToken: true,
         });
       });
     });
-  }
+  },
 },
-/* // the driver handles this itself
-imageChanged: observer('config.image', function() {
-  const image = get(this, 'config.image');
-  if ( /containerlinux/.test(image) ) {
-    set(this, 'config.sshUser', 'core');
-  } else {
-    set(this, 'config.sshUser', 'root');
-  }
-}),
-*/
 apiRequest: function (path) {
   return fetch('https://api.linode.com' + path, {
     headers: {
-      'Authorization': 'Bearer ' + this.get('model.%%DRIVERNAME%%Config.apiToken'),
+      'Authorization': 'Bearer ' + this.get('model.%%DRIVERNAME%%Config.token'),
     },
   }).then(res => res.ok ? res.json() : Promise.reject(res.json()));
 },

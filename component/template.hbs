@@ -42,7 +42,7 @@
         <div class="col span-4">
         <select class="form-control" onchange={{action (mut model.linodeConfig.region) value="target.value" }}>
           {{#each regionChoices as |choice|}}
-            <option value={{choice.id}} selected={{eq model.linodeConfig.region choice.id}}>{{choice.id}} ({{choice.country}})</option>
+            <option value={{choice.id}} selected={{eq model.linodeConfig.region choice.id}}>{{choice.label}}</option>
           {{/each}}
         </select>
         </div>
@@ -69,6 +69,29 @@
             {{/each}}
           </select>
         </div>
+        {{#unless profile.restricted }}
+          <div class="col span-2 col-inline">
+            <label class="form-control-static">Tags separated by comma (Optional)</label>
+          </div>
+          <div class="col span-4">
+            {{ input classNames="form-control" value=model.linodeConfig.tags }}
+          </div>
+        {{/unless}}
+      </div>
+      <div class="row">
+        <div class="col span-2 col-inline">
+          <label class="form-control-static">StackScript (Optional)</label>
+        </div>
+        <div class="col span-4">
+          {{ input classNames="form-control" placeholder="Examples: 'username/Stackscript Label' or '12345'" value=model.linodeConfig.stackscript }}
+        </div>
+        <div class="col span-2 col-inline">
+          <label class="form-control-static">StackScript Data as JSON (Optional)</label>
+        </div>
+        <div class="col span-4">
+          {{ textarea classNames="form-control" value=model.linodeConfig.stackscriptData }}
+        </div>
+
       </div>
     {{!-- End of Linode Options --}}
     </div>

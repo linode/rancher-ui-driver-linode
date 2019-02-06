@@ -27,7 +27,7 @@ if (!DRIVER_NAME) {
 }
 
 gulp.task('watch', function() {
-  gulp.watch(['./component/*.js', './component/*.hbs', './component/*.css'], gulp.parallel(['build']));
+  gulp.watch(['./component/*.js', './component/*.hbs', './component/*.css'], gulp.series(['build']));
 });
 
 gulp.task('clean', function() {
@@ -134,7 +134,7 @@ gulp.task('server', gulp.parallel(['build', 'watch'], function() {
 }));
 
 gulp.task('watch', function() {
-  gulp.watch(['./component/*.js', './component/*.hbs', './component/*.css'], gulp.parallel(['build']));
+  gulp.watch(['./component/*.js', './component/*.hbs', './component/*.css'], gulp.series(['build']));
 });
 
 gulp.task('default', gulp.series(['build']));
