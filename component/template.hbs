@@ -28,73 +28,105 @@
   {{else}}
   {{#accordion-list showExpandAll=false as | al expandFn |}}
     {{!-- This line shows the driver title which you don't have to change it --}}
-    <div class="over-hr mb-20"><span>{{driverOptionsTitle}}</span></div>
-
-    {{!-- An example input option --}}
-    <div class="row box mt-20">
-      <h4>Instance Options</h4>
-    {{!-- Start of Linode Options --}}
-      <div class="row">
-        <div class="col span-2 col-inline">
-          <label>Region</label>
-        </div>
-
-        <div class="col span-4">
-        <select class="form-control" onchange={{action (mut model.linodeConfig.region) value="target.value" }}>
-          {{#each regionChoices as |choice|}}
-            <option value={{choice.id}} selected={{eq model.linodeConfig.region choice.id}}>{{choice.label}}</option>
-          {{/each}}
-        </select>
-        </div>
-
-        <div class="col span-2 col-inline">
-          <label class="form-control-static">Instance Type</label>
-        </div>
-        <div class="col span-4">
-          <select class="form-control" onchange={{action (mut model.linodeConfig.instanceType) value="target.value" }}>
-            {{#each sizeChoices as |choice|}}
-              <option value={{choice.id}} selected={{eq model.linodeConfig.instanceType choice.id}}>{{choice.label}} - {{choice.vcpus}} vCPUs, {{choice.memory}}GB Memory, {{choice.disk}}GB Disk space</option>
-            {{/each}}
-          </select>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col span-2 col-inline">
-          <label class="form-control-static">Image</label>
-        </div>
-        <div class="col span-4">
-          <select class="form-control" onchange={{action (mut model.linodeConfig.image) value="target.value" }}>
-            {{#each imageChoices as |choice|}}
-              <option value={{choice.id}} selected={{eq model.linodeConfig.image choice.id}}>{{choice.label}}</option>
-            {{/each}}
-          </select>
-        </div>
-        {{#unless profile.restricted }}
-          <div class="col span-2 col-inline">
-            <label class="form-control-static">Tags separated by comma (Optional)</label>
+    <div class="over-hr"><span>{{driverOptionsTitle}}</span></div>
+      {{#accordion-list-item
+        title="Instance Options"
+        detail="Configure the options for the Linode Instances that will be created by this template."
+        expandAll=expandAll
+        expand=(action expandFn)
+        expandOnInit=true
+      }}
+      {{!-- Start of Linode Options --}}
+        <div class="row">
+          <div class="col span-6">
+            <label class="acc-label">Region</label>
+            <select class="form-control" onchange={{action (mut model.linodeConfig.region) value="target.value" }}>
+              {{#each regionChoices as |choice|}}
+                <option value={{choice.id}} selected={{eq model.linodeConfig.region choice.id}}>{{choice.label}}</option>
+              {{/each}}
+            </select>
           </div>
-          <div class="col span-4">
-            {{ input classNames="form-control" value=model.linodeConfig.tags }}
-          </div>
-        {{/unless}}
-      </div>
-      <div class="row">
-        <div class="col span-2 col-inline">
-          <label class="form-control-static">StackScript (Optional)</label>
-        </div>
-        <div class="col span-4">
-          {{ input classNames="form-control" placeholder="Examples: 'username/Stackscript Label' or '12345'" value=model.linodeConfig.stackscript }}
-        </div>
-        <div class="col span-2 col-inline">
-          <label class="form-control-static">StackScript Data as JSON (Optional)</label>
-        </div>
-        <div class="col span-4">
-          {{ textarea classNames="form-control" value=model.linodeConfig.stackscriptData }}
-        </div>
 
-      </div>
-    {{!-- End of Linode Options --}}
-    </div>
+          <div class="col span-6">
+            <label class="acc-label">Instance Type</label>
+            <select class="form-control" onchange={{action (mut model.linodeConfig.instanceType) value="target.value" }}>
+              {{#each sizeChoices as |choice|}}
+                <option value={{choice.id}} selected={{eq model.linodeConfig.instanceType choice.id}}>{{choice.label}} - {{choice.vcpus}} vCPUs, {{choice.memory}}GB Memory, {{choice.disk}}GB Disk space</option>
+              {{/each}}
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col span-6">
+            <label class="acc-label">Image</label>
+            <select class="form-control" onchange={{action (mut model.linodeConfig.image) value="target.value" }}>
+              {{#each imageChoices as |choice|}}
+                <option value={{choice.id}} selected={{eq model.linodeConfig.image choice.id}}>{{choice.label}}</option>
+              {{/each}}
+            </select>
+          </div>
+          {{#unless profile.restricted }}
+            <div class="col span-6">
+              <label class="acc-label">Tags</label>
+              {{ input classNames="form-control" placeholder="Examples: tagA, tagB, tagC" value=model.linodeConfig.tags }}
+            </div>
+          {{/unless}}
+        </div>
+        <div class="row">
+          <div class="col span-6">
+            <label class="acc-label">Private IP</label>
+            <div class="checkbox">
+              <label class="acc-label">{{input type="checkbox" checked=model.linodeConfig.createPrivateIp}} Add a Private IP</label>
+            </div>
+          </div>
+        </div>
+      {{/accordion-list-item}}
+      {{!-- End of Linode Options --}}
+      {{#accordion-list-item
+        title="Authentication"
+        detail="Configure Linode user SSH Keys and a password for the 'root' user account"
+        expandAll=expandAll
+        expand=(action expandFn)
+        expandOnInit=false
+      }}
+        <div class="row">
+          <div class="col span-12">
+            <label class="acc-label">Password for the "root" user</label>
+            {{ input
+              type="password"
+              classNames="form-control"
+              value=model.linodeConfig.rootPass
+            }}
+          </div>
+          <div class="col span-12">
+            <label class="acc-label">Linode Usernames</label>
+            {{ input classNames="form-control" placeholder="yourusername" value=model.linodeConfig.authorizedUsers }}
+          </div>
+        </div>
+      {{/accordion-list-item}}
+      {{#accordion-list-item
+        title="StackScripts"
+        detail="Configure a StackScript to run on first boot"
+        expandAll=expandAll
+        expand=(action expandFn)
+        expandOnInit=false
+      }}
+        <div class="row">
+          <div class="col span-12">
+            <label class="acc-label">StackScript (<a href="https://cloud.linode.com/stackscripts" target="_blank" rel="nofollow noreferrer noopener">manage your StackScripts</a>)</label>
+            {{ input
+            classNames="form-control"
+            placeholder="Examples: 'username/Stackscript Label' or '12345'"
+            value=model.linodeConfig.stackscript
+            }}
+          </div>
+          <div class="col span-12">
+            <label class="acc-label">StackScript Variables</label>
+            {{ textarea classNames="form-control" placeholder='{ "example": "value", "json": true }' value=model.linodeConfig.stackscriptData }}
+          </div>
+        </div>
+      {{/accordion-list-item}}
+      {{!-- End of Linode Options --}}
 
     {{!-- This following contains the Name, Labels and Engine Options fields --}}
     <div class="over-hr"><span>{{templateOptionsTitle}}</span></div>

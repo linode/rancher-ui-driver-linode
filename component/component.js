@@ -54,9 +54,10 @@ bootstrap: function () {
     uaPrefix: 'Rancher',
     tags: '',
     authorizedUsers: '',
-    createPrivateIp: false,
+    createPrivateIp: true,
     stackscript: '',
     stackscriptData: '',
+    rootPass: null,
   });
 
   set(this, 'model.%%DRIVERNAME%%Config', config);
