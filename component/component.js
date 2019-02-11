@@ -25,10 +25,9 @@ const defaultBase = 1024;
 /*!!!!!!!!!!!DO NOT CHANGE START!!!!!!!!!!!*/
 export default Ember.Component.extend(NodeDriver, {
 driverName: '%%DRIVERNAME%%',
-needAPIToken: true,
+step: 1,
 config: alias('model.%%DRIVERNAME%%Config'),
 app: service(),
-
 init() {
   // This does on the fly template compiling, if you mess with this :cry:
   const decodedLayout = window.atob(LAYOUT);
@@ -96,13 +95,13 @@ validate() {
 },
 // Any computed properties or custom logic can go here
 actions: {
-  getData() {
+  authLinode() {
     this.set('gettingData', true);
     let that = this;
     Promise.all([this.apiRequest('/v4/profile')]).then(function (responses) {
       that.setProperties({
         errors: [],
-        needAPIToken: false,
+        step: 2,
         restricted: responses[0].restricted,
       })
     }).then(function () {
@@ -129,7 +128,7 @@ actions: {
         that.setProperties({
           errors: ['Error received from Linode: ' + msg.errors[0].reason ],
           gettingData: false,
-          needAPIToken: true,
+          step: 1,
         });
       });
     });
