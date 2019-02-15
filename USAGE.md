@@ -161,7 +161,7 @@ In the Yaml editor, add the following stanza, **replacing** the `region` and `to
 
 ```yaml
 addons_include:
-  - https://gist.githubusercontent.com/displague/39f11fb899d75cc65ddd358077cbb3b7/raw/2f4ed11426b0b946a6ead2a31f74a32ae4acff23/linode-addons.yml
+  - https://linode.github.io/rancher-ui-driver-linode/releases/v0.2.0/linode-addons.yml
 addons: |-
   ---
   apiVersion: v1
