@@ -37,7 +37,7 @@ define('nodes/components/driver-linode/component', ['exports', 'shared/mixins/no
         token: null,
         instanceType: 'g6-standard-4',
         region: 'us-east',
-        image: 'linode/ubuntu16.04lts',
+        image: 'linode/ubuntu18.04',
         uaPrefix: 'Rancher',
         tags: '',
         authorizedUsers: '',
@@ -103,10 +103,8 @@ define('nodes/components/driver-linode/component', ['exports', 'shared/mixins/no
                 return (/^linode.(ubuntu18.04|ubuntu16.04|debian9)/.test(image.id)
                 );
               }),
-              sizeChoices: responses[2].data.filter(function (size) {
-                return !/nanode/.test(size.id);
-              }).map(function (image) {
-                image.disk /= 1024;image.memory /= 1024;return image;
+              sizeChoices: responses[2].data.map(function (size) {
+                size.disk /= 1024;size.memory /= 1024;return size;
               })
             });
           }).catch(function (err) {
