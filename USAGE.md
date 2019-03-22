@@ -13,19 +13,11 @@ In this guide, we will cover:
 
 ## Provision a Linode with Docker-CE
 
-While any Linux system with Docker installed could be our starting point, we'll double down on the Linode Docker Machine driver for educational gains.  Rancher relies on Docker Machine drivers and we will be configuring how Rancher does this.  Exposure to this workflow will give us perspective.
+There are other guides on installing Rancher, such as the [HA Install with External Load Balancer guide](https://rancher.com/docs/rancher/v2.x/en/installation/ha/rke-add-on/layer-4-lb/), or [Installing Rancher2 HA Cluster with Let's Encrypt](https://medium.com/@facktoreal/installing-rancher-2-ha-with-lets-encrypt-ca3e09bf19c1).  To run Rancher all you need is an environment where you can run Docker.
 
-Install the docker-machine-driver-linode binary from https://github.com/linode/docker-machine-driver-linode/releases
+While any Linux system with Docker installed could be our starting point, we'll double down on the [Linode Docker Machine driver](https://github.com/linode/docker-machine-driver-linode/#docker-machine-driver-linode) for educational gains.
 
-Be sure to grab the appropriate binary for your operating system. OSX and Linux builds are available.
-
-With the binary in your path, the `docker-machine` command will handle Linode provisioning:
-
-```sh
-docker-machine create -d linode --help
-```
-
-The only arguments that are required for provisioning are the Linode APIv4 Token and a label.  In practice, you will want to avoid the defaults and choose the Linode Instance type, base image, and region that best suits your needs.
+Install Docker and the Docker Machine Driver for Linode https://www.linode.com/community/questions/17797/using-the-linode-docker-machine-driver
 
 You will need to provide a [Personal Access Token for Linode APIv4](https://cloud.linode.com/profile/tokens) (referred to below as `$LINODE_TOKEN`).
 
