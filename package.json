@@ -19,9 +19,9 @@
   },
   "homepage": "https://github.com/linode/rancher-ui-driver-linode#readme",
   "devDependencies": {
-    "@babel/core": "^7.1.2",
+    "@babel/core": "^7.4.0",
     "babel-core": "^6.26.3",
-    "babel-plugin-add-module-exports": "^0.3.2",
+    "babel-plugin-add-module-exports": "^0.3.3",
     "babel-plugin-transform-es2015-modules-amd": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "del": "3.0.0",
@@ -33,7 +33,7 @@
     "gulp-jshint": "2.1.0",
     "gulp-replace": "0.6.1",
     "gulp-sourcemaps": "2.6.4",
-    "jshint": "^2.9.7",
+    "jshint": "^2.10.2",
     "replace-string": "^1.1.0",
     "yargs": "11.0.0"
   }
