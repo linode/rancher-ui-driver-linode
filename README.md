@@ -1,11 +1,24 @@
-# ui-driver-linode
+# rancher-ui-driver-linode
 
 Linode Rancher UI driver for the Linode docker-machine driver
 
+## Usage
+
+[Rancher](https://rancher.com/products/rancher/) [v2.2.0+ includes this Linode Node Driver](https://forums.rancher.com/t/rancher-release-v2-2-0/).  Manual installation is not required.
+
+See the following guide for basic and advanced usage, including integration with the [Linode CSI](https://github.com/linode/linode-blockstorage-csi-driver/) ([Block Storage](https://www.linode.com/blockstorage)) and [Linode CCM](https://github.com/linode/linode-cloud-controller-manager) ([NodeBalancer](https://www.linode.com/nodebalancers)) Kubernetes Addons:
+
+* https://www.linode.com/docs/applications/containers/how-to-deploy-kubernetes-on-linode-with-rancher-2-2/
+
+The [Linode Docker Machine Driver](https://docs.docker.com/machine/drivers/linode/) that this Node Driver uses is described here:
+
+* https://www.linode.com/community/questions/17797/using-the-linode-docker-machine-driver
 
 ## Setup
 
-* Add a Machine Driver in Rancher 2.0 (Global -> Node Drivers)
+These steps are still useful in Rancher v2.0.x where the Linode Node Driver is not already included.
+
+* Add a Machine Driver in Rancher 2.0.x (Global -> Node Drivers)
   * Name: `Linode`
   * Download URL:
 
