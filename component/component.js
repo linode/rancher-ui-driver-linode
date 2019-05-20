@@ -1,11 +1,13 @@
 /*!!!!!!!!!!!Do not change anything between here (the DRIVERNAME placeholder will be automatically replaced at buildtime)!!!!!!!!!!!*/
-import NodeDriver from 'shared/mixins/node-driver';
+import NodeDriver, { DynamicDependentKeysProperty, registerDisplayLocation, registerDisplaySize } from 'shared/mixins/node-driver';
 
 // do not remove LAYOUT, it is replaced at build time with a base64 representation of the template of the hbs template
 // we do this to avoid converting template to a js file that returns a string and the cors issues that would come along with that
 const LAYOUT;
 /*!!!!!!!!!!!DO NOT CHANGE END!!!!!!!!!!!*/
 
+registerDisplayLocation(new DynamicDependentKeysProperty({ driver: '%%DRIVERNAME%%', keyOrKeysToWatch: 'config.region' }));
+registerDisplaySize(new DynamicDependentKeysProperty({ driver: '%%DRIVERNAME%%', keyOrKeysToWatch: 'config.instanceType' }));
 
 /*!!!!!!!!!!!GLOBAL CONST START!!!!!!!!!!!*/
 // EMBER API Access - if you need access to any of the Ember API's add them here in the same manner rather then import them via modules, since the dependencies exist in rancher we dont want to expor the modules in the amd def
@@ -28,25 +30,27 @@ driverName: '%%DRIVERNAME%%',
 step: 1,
 config: alias('model.%%DRIVERNAME%%Config'),
 app: service(),
+intl: service(),
 init() {
   // This does on the fly template compiling, if you mess with this :cry:
   const decodedLayout = window.atob(LAYOUT);
   const template = Ember.HTMLBars.compile(decodedLayout, {
     moduleName: 'nodes/components/driver-%%DRIVERNAME%%/template'
   });
+
   set(this, 'layout', template);
 
   this._super(...arguments);
 
 },
 /*!!!!!!!!!!!DO NOT CHANGE END!!!!!!!!!!!*/
-
+cloudCredentials: null,
 // Write your component here, starting with setting 'model' to a machine with your config populated
 bootstrap: function () {
-  // bootstrap is called by rancher ui on 'init', you're better off doing your setup here rather then the init function to ensure everything is setup correctly
+  set(this, 'cloudCredentials', this.globalStore.all('cloudCredential'));
+    // bootstrap is called by rancher ui on 'init', you're better off doing your setup here rather then the init function to ensure everything is setup correctly
   let config = get(this, 'globalStore').createRecord({
     type: '%%DRIVERNAME%%Config',
-    token: null,
     instanceType: 'g6-standard-4', // 4 GB Ram
     region: 'us-east', // Newark
     image: 'linode/ubuntu18.04', // 10 year support from Ubuntu
@@ -83,6 +87,10 @@ validate() {
     errors.push('Specifying a %%DRIVERNAME%% Region is required');
   }
 
+  if (!this.validateCloudCredentials()) {
+    errors.push(this.intl.t('nodeDriver.cloudCredentialError'));
+  }
+
   // Set the array of errors for display,
   // and return true if saving should continue.
   if (get(errors, 'length')) {
@@ -95,50 +103,49 @@ validate() {
 },
 // Any computed properties or custom logic can go here
 actions: {
-  authLinode() {
+  finishAndSelectCloudCredential(cred) {
+    if (cred) {
+      set(this, 'model.cloudCredentialId', get(cred, 'id'));
+
+      this.send('authLinode');
+    }
+  },
+
+  authLinode(cb) {
+    const auth = {
+      type:  'cloud',
+      token: get(this, 'model.cloudCredentialId'),
+    };
+
     this.set('gettingData', true);
     let that = this;
-    Promise.all([this.apiRequest('/v4/profile')]).then(function (responses) {
+
+    Promise.all([that.apiRequest('/v4/regions'), that.apiRequest('/v4/images'), that.apiRequest('/v4/linode/types')]).then(function (responses) {
       that.setProperties({
         errors: [],
         step: 2,
         restricted: responses[0].restricted,
-      })
-    }).then(function () {
-
-      Promise.all([that.apiRequest('/v4/regions'), that.apiRequest('/v4/images'), that.apiRequest('/v4/linode/types')]).then(function (responses) {
-        that.setProperties({
-          errors: [],
-          gettingData: false,
-          regionChoices: responses[0].data.map(region => { region.label = region.id.slice(0,4).toUpperCase() + region.id.slice(4) + " (" + region.country.toUpperCase() + ")";  return region }).sort((a,b)=>String.prototype.localeCompare(a,b)),
-          imageChoices: responses[1].data.filter(image => /^linode.(ubuntu18.04|ubuntu16.04|debian9)/.test(image.id)),
-          sizeChoices: responses[2].data.map(size => { size.disk/=1024; size.memory/=1024; return size } ),
-        })
-      }).catch(function (err) {
-          err.then(function (msg) {
-            that.setProperties({
-              errors: ['Error received from Linode: ' + msg.errors[0].reason ],
-              gettingData: false,
-            });
-          });
+        gettingData: false,
+        regionChoices: responses[0].data.map(region => { region.label = region.id.slice(0,4).toUpperCase() + region.id.slice(4) + " (" + region.country.toUpperCase() + ")";  return region }).sort((a,b)=>String.prototype.localeCompare(a,b)),
+        imageChoices: responses[1].data.filter(image => /^linode.(ubuntu18.04|ubuntu16.04|debian9)/.test(image.id)),
+        sizeChoices: responses[2].data.map(size => { size.disk/=1024; size.memory/=1024; return size } ),
       });
-
     }).catch(function (err) {
-      err.then(function (msg) {
-        that.setProperties({
-          errors: ['Error received from Linode: ' + msg.errors[0].reason ],
-          gettingData: false,
-          step: 1,
+        err.then(function (msg) {
+          that.setProperties({
+            errors: ['Error received from Linode: ' + msg.errors[0].reason ],
+            gettingData: false,
+          });
         });
-      });
     });
+
+    if (cb && typeof cb === 'function') {
+      cb();
+    }
   },
 },
-apiRequest: function (path) {
-  return fetch('https://api.linode.com' + path, {
-    headers: {
-      'Authorization': 'Bearer ' + this.get('model.%%DRIVERNAME%%Config.token'),
-    },
-  }).then(res => res.ok ? res.json() : Promise.reject(res.json()));
+apiRequest: function (path, auth) {
+  return fetch('https://api.linode.com' + path)
+    .then(res => res.ok ? res.json() : Promise.reject(res.json()));
 },
 });
