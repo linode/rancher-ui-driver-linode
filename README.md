@@ -31,7 +31,7 @@ These steps are still useful in Rancher v2.0.x where the Linode Node Driver is n
 
     `https://github.com/linode/docker-machine-driver-linode/releases/download/v0.1.7/docker-machine-driver-linode_linux-amd64.zip`
 
-  * Custom UI URL:
+  * Custom UI URL (Note: v0.3.0-alpha.1 and greater require Rancher 2.2.3+ ):
 
     `https://linode.github.io/rancher-ui-driver-linode/releases/v0.2.0/component.js`
 
