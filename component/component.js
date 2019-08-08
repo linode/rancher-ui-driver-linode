@@ -17,6 +17,7 @@ const set = Ember.set;
 const alias = Ember.computed.alias;
 const service = Ember.inject.service;
 const observer = Ember.observer;
+const hash = Ember.RSVP.hash;
 
 const defaultRadix = 10;
 const defaultBase = 1024;
@@ -31,6 +32,7 @@ export default Ember.Component.extend(NodeDriver, {
   config: alias('model.%%DRIVERNAME%%Config'),
   app: service(),
   intl: service(),
+  linode: service(),
   init() {
     // This does on the fly template compiling, if you mess with this :cry:
     const decodedLayout = window.atob(LAYOUT);
@@ -44,7 +46,6 @@ export default Ember.Component.extend(NodeDriver, {
 
   },
   /*!!!!!!!!!!!DO NOT CHANGE END!!!!!!!!!!!*/
-  cloudCredentials: null,
   // Write your component here, starting with setting 'model' to a machine with your config populated
   bootstrap: function () {
     set(this, 'cloudCredentials', this.globalStore.all('cloudCredential'));
@@ -116,36 +117,28 @@ export default Ember.Component.extend(NodeDriver, {
         type: 'cloud',
         token: get(this, 'model.cloudCredentialId'),
       };
-
-      this.set('gettingData', true);
-      let that = this;
-
-      Promise.all([that.apiRequest('/v4/regions'), that.apiRequest('/v4/images'), that.apiRequest('/v4/linode/types')]).then(function (responses) {
-        that.setProperties({
+      hash({
+        regions: this.linode.request(auth, 'regions'),
+        images: this.linode.request(auth, 'images'),
+        sizes: this.linode.request(auth, 'linode/types'),
+      }).then((responses) => {
+        this.setProperties({
           errors: [],
           step: 2,
-          restricted: responses[0].restricted,
-          gettingData: false,
-          regionChoices: responses[0].data.map(region => { region.label = region.id.slice(0, 4).toUpperCase() + region.id.slice(4) + " (" + region.country.toUpperCase() + ")"; return region }).sort((a, b) => String.prototype.localeCompare(a, b)),
-          imageChoices: responses[1].data.filter(image => /^linode.(ubuntu18.04|ubuntu16.04|debian9)/.test(image.id)),
-          sizeChoices: responses[2].data.map(size => { size.disk /= 1024; size.memory /= 1024; return size }),
+          restricted: responses.regions.restricted,
+          regionChoices: responses.regions.data.map(region => { region.label = region.id.slice(0, 4).toUpperCase() + region.id.slice(4) + " (" + region.country.toUpperCase() + ")"; return region }).sort((a, b) => String.prototype.localeCompare(a, b)),
+          imageChoices: responses.images.data.filter(image => /^linode.(ubuntu18.04|ubuntu16.04|debian9)/.test(image.id)),
+          sizeChoices: responses.sizes.data.map(size => { size.disk /= 1024; size.memory /= 1024; return size }),
         });
-      }).catch(function (err) {
-        err.then(function (msg) {
-          that.setProperties({
-            errors: ['Error received from Linode: ' + msg.errors[0].reason],
-            gettingData: false,
-          });
-        });
-      });
+      }, (err) => {
+        let errors = get(this, 'errors') || [];
 
-      if (cb && typeof cb === 'function') {
+        errors.push(`Error received from Linode: ${ err.body.errors[0].reason }`);
+
+        this.setProperties({ errors, });
+
         cb();
-      }
+      }); 
     },
-  },
-  apiRequest: function (path, auth) {
-    return fetch('https://api.linode.com' + path)
-      .then(res => res.ok ? res.json() : Promise.reject(res.json()));
-  },
+  }
 });
