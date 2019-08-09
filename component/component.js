@@ -1,13 +1,10 @@
 /*!!!!!!!!!!!Do not change anything between here (the DRIVERNAME placeholder will be automatically replaced at buildtime)!!!!!!!!!!!*/
-import NodeDriver, { DynamicDependentKeysProperty, registerDisplayLocation, registerDisplaySize } from 'shared/mixins/node-driver';
+import NodeDriver from 'shared/mixins/node-driver';
 
 // do not remove LAYOUT, it is replaced at build time with a base64 representation of the template of the hbs template
 // we do this to avoid converting template to a js file that returns a string and the cors issues that would come along with that
 const LAYOUT;
 /*!!!!!!!!!!!DO NOT CHANGE END!!!!!!!!!!!*/
-
-registerDisplayLocation(new DynamicDependentKeysProperty({ driver: '%%DRIVERNAME%%', keyOrKeysToWatch: 'config.region' }));
-registerDisplaySize(new DynamicDependentKeysProperty({ driver: '%%DRIVERNAME%%', keyOrKeysToWatch: 'config.instanceType' }));
 
 /*!!!!!!!!!!!GLOBAL CONST START!!!!!!!!!!!*/
 // EMBER API Access - if you need access to any of the Ember API's add them here in the same manner rather then import them via modules, since the dependencies exist in rancher we dont want to expor the modules in the amd def
