@@ -127,10 +127,14 @@ export default Ember.Component.extend(NodeDriver, {
           imageChoices: responses.images.data.filter(image => /^linode.(ubuntu18.04|ubuntu16.04|debian9)/.test(image.id)),
           sizeChoices: responses.sizes.data.map(size => { size.disk /= 1024; size.memory /= 1024; return size }),
         });
-      }, (err) => {
+      }).catch((err) => {
         let errors = get(this, 'errors') || [];
 
-        errors.push(`Error received from Linode: ${ err.body.errors[0].reason }`);
+        if (err && err.body && err.body.errors && err.body.errors[0]) {
+          errors.push(`Error received from Linode: ${ err.body.errors[0].reason }`);
+        } else {
+          errors.push(`Error received from Linode`);
+        }
 
         this.setProperties({ errors, });
 
