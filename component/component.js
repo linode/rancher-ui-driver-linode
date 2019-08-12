@@ -45,7 +45,6 @@ export default Ember.Component.extend(NodeDriver, {
   /*!!!!!!!!!!!DO NOT CHANGE END!!!!!!!!!!!*/
   // Write your component here, starting with setting 'model' to a machine with your config populated
   bootstrap: function () {
-    set(this, 'cloudCredentials', this.globalStore.all('cloudCredential'));
     // bootstrap is called by rancher ui on 'init', you're better off doing your setup here rather then the init function to ensure everything is setup correctly
     let config = get(this, 'globalStore').createRecord({
       type: '%%DRIVERNAME%%Config',
