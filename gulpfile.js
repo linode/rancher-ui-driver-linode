@@ -9,6 +9,8 @@ const argv = require('yargs').argv;
 const pkg = require('./package.json');
 const fs = require('fs');
 const replaceString = require('replace-string');
+const gulpBump = require('gulp-bump');
+const inquirer = require('inquirer');
 
 
 const NAME_TOKEN = '%%DRIVERNAME%%';
@@ -126,6 +128,38 @@ gulp.task('compile', gulp.series('rexport', function () {
 }));
 
 gulp.task('build', gulp.series('compile'));
+
+gulp.task('bump', gulp.series(function(cb) {
+  inquirer
+    .prompt([{
+        type: 'list',
+        name: 'bump',
+        message: 'What do you want to do?',
+        choices: ['patch', 'minor', 'major']
+      },
+    ])
+    .then((answers) => {
+      var bumpOptions = {
+        type: answers.bump
+      };
+
+      gulp.src('./package.json')
+        .pipe(gulpBump(bumpOptions))
+        .pipe(gulp.dest('./'))
+        .on('end', cb);
+    });
+}));
+
+gulp.task('createArtifact', gulp.series(function () {
+  const json = JSON.parse(fs.readFileSync('./package.json'));
+  const version = `v${json.version}`;
+
+  return gulp.src(['./dist/*', './releases/v0.2.0/linode-addons.yml'])
+    .pipe(gulp.dest(`./releases/${version}`));
+}));
+
+
+gulp.task('release', gulp.series('build', 'bump', 'createArtifact'));
 
 gulp.task('server', gulp.parallel(['build', 'watch'], function () {
   return gulpConnect.server({
