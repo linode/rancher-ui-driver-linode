@@ -1,6 +1,6 @@
 {
   "name": "ui-driver-linode",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Rancher UI driver for the Linode docker-machine driver",
   "repository": {
     "type": "git",
@@ -14,17 +14,19 @@
   "scripts": {
     "start": "./node_modules/.bin/gulp server",
     "clean": "./node_modules/.bin/gulp clean",
-    "build": "./node_modules/.bin/gulp build"
+    "build": "./node_modules/.bin/gulp build",
+    "release": "./node_modules/.bin/gulp release"
   },
   "homepage": "https://github.com/linode/rancher-ui-driver-linode#readme",
   "devDependencies": {
-    "@babel/core": "^7.2.2",
-    "babel-plugin-add-module-exports": "^1.0.0",
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babel-plugin-add-module-exports": "^1.0.2",
     "babel-plugin-transform-es2015-modules-amd": "^6.24.1",
-    "@babel/preset-env": "^7.2.3",
     "del": "3.0.0",
-    "gulp": "4.0.0",
+    "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
+    "gulp-bump": "^3.1.3",
     "gulp-clean": "0.4.0",
     "gulp-concat": "2.6.1",
     "gulp-connect": "5.7.0",
