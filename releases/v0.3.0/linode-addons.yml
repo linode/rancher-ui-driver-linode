@@ -350,13 +350,13 @@ roleRef:
 ---
 # pkg/linode-bs/deploy/kubernetes/04-csi-driver-instance.yaml
 
-apiVersion: csi.storage.k8s.io/v1alpha1
+apiVersion: storage.k8s.io/v1beta1
 kind: CSIDriver
 metadata:
   name: linodebs.csi.linode.com
 spec:
   attachRequired: true
-  podInfoOnMountVersion: "v1"
+  podInfoOnMount: true
 
 ---
 # pkg/linode-bs/deploy/kubernetes/05-csi-storageclass.yaml
@@ -416,7 +416,7 @@ spec:
             - name: socket-dir
               mountPath: /var/lib/csi/sockets/pluginproxy/
         - name: linode-csi-plugin
-          image: linode/linode-blockstorage-csi-driver:canary
+          image: linode/linode-blockstorage-csi-driver:v0.1.3
           args :
             - "--endpoint=$(CSI_ENDPOINT)"
             - "--token=$(LINODE_TOKEN)"
@@ -447,7 +447,7 @@ spec:
 ---
 # pkg/linode-bs/deploy/kubernetes/07-ds-csi-linode-node.yaml
 kind: DaemonSet
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 metadata:
   name: csi-linode-node
   namespace: kube-system
@@ -488,7 +488,7 @@ spec:
             - name: registration-dir
               mountPath: /registration/
         - name: csi-linode-plugin
-          image: linode/linode-blockstorage-csi-driver:canary
+          image: linode/linode-blockstorage-csi-driver:v0.1.3
           args :
             - "--endpoint=$(CSI_ENDPOINT)"
             - "--token=$(LINODE_TOKEN)"
@@ -602,12 +602,17 @@ subjects:
   name: external-dns
   namespace: kube-system
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: external-dns
   namespace: kube-system
+  labels:
+    app: external-dns
 spec:
+  selector:
+    matchLabels:
+      app: external-dns
   strategy:
     type: Recreate
   template:
