@@ -66,7 +66,7 @@ For other users to see your driver, you need to build it and host the output on 
 
 ### Contribution Guidelines
 
-Would you like to improve the `rancher-ui-driver-linode` module? Please start [here](https://github.com/linode/rancher-ui-driver-linode/blob/master/.github/CONTRIBUTING.md).
+Would you like to improve the `rancher-ui-driver-linode` module? Please start [here](/.github/CONTRIBUTING.md).
 
 ## Resources
 
