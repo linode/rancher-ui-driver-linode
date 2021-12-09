@@ -123,7 +123,8 @@ export default Ember.Component.extend(NodeDriver, {
           step: 2,
           restricted: responses.regions.restricted,
           regionChoices: responses.regions.data.map(region => { region.label = region.id.slice(0, 4).toUpperCase() + region.id.slice(4) + " (" + region.country.toUpperCase() + ")"; return region }).sort((a, b) => String.prototype.localeCompare(a, b)),
-          imageChoices: responses.images.data.filter(image => /^linode.(ubuntu18.04|ubuntu16.04|debian9)/.test(image.id)),
+          // Filter on valid images and ignore Kubernetes images
+          imageChoices: responses.images.data.filter(image => /^linode.(ubuntu20.04|ubuntu18.04|ubuntu16.04|debian10|debian9)/.test(image.id) && !image.id.includes('kube')).sort((a, b) => a.id > b.id),
           sizeChoices: responses.sizes.data.map(size => { size.disk /= 1024; size.memory /= 1024; return size }),
         });
       }).catch((err) => {
@@ -138,7 +139,7 @@ export default Ember.Component.extend(NodeDriver, {
         this.setProperties({ errors, });
 
         cb();
-      }); 
+      });
     },
   }
 });
