@@ -1,6 +1,6 @@
 {
   "name": "ui-driver-linode",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "description": "Rancher UI driver for the Linode docker-machine driver",
   "repository": {
     "type": "git",
