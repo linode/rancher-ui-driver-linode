@@ -31,7 +31,7 @@
     "gulp-concat": "2.6.1",
     "gulp-connect": "5.7.0",
     "gulp-jshint": "2.1.0",
-    "gulp-replace": "1.0.0",
+    "gulp-replace": "1.1.4",
     "gulp-sourcemaps": "2.6.4",
     "inquirer": "^7.3.0",
     "jshint": "2.13.6",
