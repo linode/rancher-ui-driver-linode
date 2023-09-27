@@ -35,7 +35,7 @@
     "gulp-sourcemaps": "2.6.4",
     "inquirer": "^7.3.0",
     "jshint": "2.13.6",
-    "replace-string": "^2.0.0",
+    "replace-string": "^4.0.0",
     "yargs": "^15.3.1"
   }
 }
