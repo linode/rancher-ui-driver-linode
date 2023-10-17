@@ -20,7 +20,7 @@
   "homepage": "https://github.com/linode/rancher-ui-driver-linode#readme",
   "devDependencies": {
     "@babel/core": "^7.22.20",
-    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-env": "^7.23.2",
     "babel-plugin-add-module-exports": "^1.0.4",
     "babel-plugin-transform-es2015-modules-amd": "^6.24.1",
     "del": "3.0.0",
