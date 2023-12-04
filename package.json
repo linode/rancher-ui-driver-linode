@@ -32,8 +32,8 @@
     "gulp-connect": "5.7.0",
     "gulp-jshint": "2.1.0",
     "gulp-replace": "1.0.0",
-    "gulp-sourcemaps": "2.6.4",
-    "inquirer": "^9.2.11",
+    "gulp-sourcemaps": "3.0.0",
+    "inquirer": "^9.2.12",
     "jshint": "2.13.6",
     "replace-string": "^2.0.0",
     "yargs": "^15.3.1"
