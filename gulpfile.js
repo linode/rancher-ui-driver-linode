@@ -154,7 +154,7 @@ gulp.task('createArtifact', gulp.series(function () {
   const json = JSON.parse(fs.readFileSync('./package.json'));
   const version = `v${json.version}`;
 
-  return gulp.src(['./dist/*', './releases/v0.2.0/linode-addons.yml'])
+  return gulp.src(['./dist/*', './releases/v0.6.0/linode-addons.yml'])
     .pipe(gulp.dest(`./releases/${version}`));
 }));
 
