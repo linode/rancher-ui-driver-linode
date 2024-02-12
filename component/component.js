@@ -49,8 +49,8 @@ export default Ember.Component.extend(NodeDriver, {
     let config = get(this, 'globalStore').createRecord({
       type: '%%DRIVERNAME%%Config',
       instanceType: 'g6-standard-4', // 4 GB Ram
-      region: 'us-east', // Newark
-      image: 'linode/ubuntu18.04', // 10 year support from Ubuntu
+      region: 'us-iad', // Newark
+      image: 'linode/ubuntu22.04', // 10 year support from Ubuntu
       uaPrefix: 'Rancher',
       tags: '',
       authorizedUsers: '',
