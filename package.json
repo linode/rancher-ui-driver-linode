@@ -37,8 +37,5 @@
     "jshint": "2.13.6",
     "replace-string": "^2.0.0",
     "yargs": "^15.3.1"
-  },
-  "dependencies": {
-    "fsevents": "^2.3.3"
   }
 }
