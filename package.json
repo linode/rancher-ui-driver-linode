@@ -24,7 +24,7 @@
     "babel-plugin-add-module-exports": "^1.0.4",
     "babel-plugin-transform-es2015-modules-amd": "^6.24.1",
     "del": "7.1.0",
-    "gulp": "^4.0.2",
+    "gulp": "^5.0.0",
     "gulp-babel": "^8.0.0",
     "gulp-bump": "^3.2.0",
     "gulp-clean": "0.4.0",
