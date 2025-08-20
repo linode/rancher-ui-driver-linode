@@ -33,7 +33,7 @@
     "gulp-jshint": "2.1.0",
     "gulp-replace": "1.0.0",
     "gulp-sourcemaps": "3.0.0",
-    "inquirer": "^8.2.4",
+    "inquirer": "^8.2.7",
     "jshint": "2.13.6",
     "replace-string": "^2.0.0",
     "yargs": "^15.3.1"
