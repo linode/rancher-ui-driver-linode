@@ -39,6 +39,7 @@
     "yargs": "^15.3.1"
   },
   "overrides": {
-    "postcss": "^8.4.31"
+    "postcss": "^8.4.31",
+    "minimatch": "3.1.4"
   }
 }
